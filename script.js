@@ -221,44 +221,35 @@ function drawShield(type, number, x, y) {
 
 function drawFireflyGraffiti(x, y, color) {
     const pngSource = document.getElementById('fireflyLocalPNG');
-    
-    // Safety check: if the PNG file isn't found or loaded yet, skip drawing to prevent app crashing
     if (!pngSource) return;
 
     ctx.save();
     
-    // 1. Set up a temporary hidden canvas buffer to strip the PNG's color and apply porous paint textures
     let offCanvas = document.createElement('canvas');
     offCanvas.width = 160;
     offCanvas.height = 160;
     let oCtx = offCanvas.getContext('2d');
 
-    // Draw your clean firefly.png file onto the hidden layer
     oCtx.drawImage(pngSource, 10, 10, 140, 140);
 
-    // 2. The Stencil Mask: Convert the shape silhouette into a solid paint layer (White or Black)
     oCtx.globalCompositeOperation = 'source-in';
     oCtx.fillStyle = color === 'WHITE' ? 'rgba(230, 238, 232, 0.78)' : 'rgba(14, 18, 15, 0.88)';
     oCtx.fillRect(0, 0, 160, 160);
 
-    // 3. Stencil Texture: Add dynamic micro-speckles inside the logo bounds to mimic standard aerosol grit
     oCtx.globalCompositeOperation = 'source-atop';
     oCtx.fillStyle = color === 'WHITE' ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)';
     for(let i = 0; i < 40; i++) {
         oCtx.fillRect(Math.random() * 160, Math.random() * 160, Math.random() * 2 + 1, Math.random() * 2 + 1);
     }
 
-    // 4. Paint the finalized textured stencil logo onto your green highway road sign panel
     ctx.drawImage(offCanvas, x - 80, y - 80);
 
-    // 5. Seeded Random System: Prevents spray paint particles from flickering or jumping around when typing text
     let localSeed = 54321;
     function seededRandom() {
         localSeed = (localSeed * 9301 + 49297) % 233280;
         return localSeed / 233280;
     }
 
-    // 6. Aerosol Mist Overspray Pass: Simulates authentic stencil bleeding around the outside edge of the emblem
     for(let s = 0; s < 140; s++) {
         let angle = seededRandom() * Math.PI * 2;
         let radius = seededRandom() * 85;
@@ -270,24 +261,96 @@ function drawFireflyGraffiti(x, y, color) {
         ctx.fill();
     }
 
-    // 7. Vertical Paint Drips: Renders survivalist spray runs running down from the base of the wing elements
     ctx.fillStyle = color === 'WHITE' ? 'rgba(230,238,232,0.65)' : 'rgba(14,18,15,0.75)';
-    for(let d = 0; d < 4; d++) {
-        // Distribute the runs across the width of the lower logo body section
-        let dx = x + (seededRandom() - 0.5) * 55;
-        let startY = y + 10 + (seededRandom() * 15);
-        let dl = seededRandom() * 50 + 25;
-        let dw = seededRandom() * 1.6 + 1.4;
+    const dripOffsets = [-25, -5, 0, 5, 25];
+    
+    dripOffsets.forEach((offset, idx) => {
+        let dx = x + offset + (seededRandom() - 0.5) * 4;
+        let startY = y + 38;
+        let dl = seededRandom() * 45 + 30;
+        let dw = seededRandom() * 1.5 + 1.4;
         
-        // Draw the vertical drip line body
         ctx.fillRect(dx - dw/2, startY, dw, dl);
-        
-        // Draw the terminal heavy bulbous paint droplet hanging at the bottom tip of the streak
         ctx.beginPath();
         ctx.arc(dx, startY + dl, dw * 0.95, 0, Math.PI * 2);
         ctx.fill();
+    });
+    
+    ctx.restore();
+}
+
+function drawCordycepsGrowth(ctx, x, y, size) {
+    let seed = x + y;
+    function sRandom() {
+        seed = (seed * 9301 + 49297) % 233280;
+        return seed / 233280;
     }
     
+    ctx.save();
+    ctx.strokeStyle = 'rgba(200, 150, 80, 0.4)';
+    ctx.lineWidth = 1.5;
+    for(let i=0; i<6; i++) {
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.quadraticCurveTo(x + (sRandom()-0.5)*size*2, y + (sRandom()-0.5)*size*2, x + (sRandom()-0.5)*size*3, y + (sRandom()-0.5)*size*3);
+        ctx.stroke();
+    }
+    
+    for(let i=0; i<8; i++) {
+        let nx = x + (sRandom() - 0.5) * size * 1.5;
+        let ny = y + (sRandom() - 0.5) * size * 1.5;
+        let rad = sRandom() * (size * 0.6) + 3;
+        
+        let grd = ctx.createRadialGradient(nx - rad*0.3, ny - rad*0.3, 1, nx, ny, rad);
+        grd.addColorStop(0, '#e59342');
+        grd.addColorStop(0.6, '#a65b24');
+        grd.addColorStop(1, '#42240c');
+        
+        ctx.fillStyle = grd;
+        ctx.beginPath();
+        ctx.arc(nx, ny, rad, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.restore();
+}
+function drawIvyGrowth(ctx, startX, startY, length, size) {
+    let seed = startX * startY;
+    function sRandom() {
+        seed = (seed * 9301 + 49297) % 233280;
+        return seed / 233280;
+    }
+
+    ctx.save();
+    ctx.strokeStyle = 'rgba(30, 48, 25, 0.8)';
+    ctx.lineWidth = 3;
+    
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    let cx = startX;
+    let cy = startY;
+    for(let i=0; i<length; i++) {
+        cx += (sRandom() - 0.3) * 15;
+        cy += (sRandom() - 0.1) * 20;
+        ctx.lineTo(cx, cy);
+        
+        if(i % 2 === 0) {
+            ctx.save();
+            ctx.fillStyle = sRandom() > 0.4 ? 'rgba(42, 68, 35, 0.9)' : 'rgba(56, 84, 48, 0.95)';
+            ctx.translate(cx, cy);
+            ctx.rotate(sRandom() * Math.PI * 2);
+            
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.quadraticCurveTo(-size, -size*0.5, -size*1.5, 0);
+            ctx.quadraticCurveTo(-size, size*0.5, 0, 0);
+            ctx.quadraticCurveTo(size, -size*0.5, size*1.5, 0);
+            ctx.quadraticCurveTo(size, size*0.5, 0, 0);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+    }
+    ctx.stroke();
     ctx.restore();
 }
 
@@ -366,13 +429,55 @@ function renderSign() {
             streakGrad.addColorStop(1, 'transparent');
             ctx.fillStyle = streakGrad; ctx.fillRect(pt.x - 2, pt.y + 2, 4, activeRust * 8);
         }
+
+        const cordycepsVal = parseInt(document.getElementById('cordycepsSlider')?.value || 0);
+        if (cordycepsVal > 0) {
+            drawCordycepsGrowth(ctx, pt.x, pt.y, cordycepsVal * 3.5);
+        }
     });
+
+    const ivyVal = parseInt(document.getElementById('ivySlider')?.value || 0);
+    if(ivyVal > 0) {
+        let ivySeedSystem = [
+            { x: padding + 60, y: padding, len: ivyVal * 1.8, sz: 8 },
+            { x: padding + sw - 120, y: padding, len: ivyVal * 2.2, sz: 10 },
+            { x: padding, y: padding + 80, len: ivyVal * 1.5, sz: 7 }
+        ];
+        ivySeedSystem.forEach(vine => {
+            drawIvyGrowth(ctx, vine.x, vine.y, vine.len, vine.sz);
+        });
+    }
 }
 
-// Initial source image asset checking hook on boot
-const baseLogo = document.getElementById('fireflyLogoSource');
-if(baseLogo) {
-    baseLogo.onload = () => renderSign();
+const initLogo = document.getElementById('fireflyLogoSource');
+if(initLogo) { initLogo.onload = () => renderSign(); }
+
+if (!document.getElementById('ivySlider')) {
+    const ivyGroup = document.createElement('div');
+    ivyGroup.className = 'control-group';
+    ivyGroup.innerHTML = `<label for="ivySlider">Overgrown Ivy / Vines</label>
+    <div class="range-slider">
+        <input type="range" id="ivySlider" min="0" max="10" value="0">
+        <span id="ivyVal">0</span>
+    </div>`;
+    controlPane.appendChild(ivyGroup);
+    document.getElementById('ivySlider').addEventListener('input', (e) => {
+        document.getElementById('ivyVal').innerText = e.target.value;
+        renderSign();
+    });
+
+    const fungalGroup = document.createElement('div');
+    fungalGroup.className = 'control-group';
+    fungalGroup.innerHTML = `<label for="cordycepsSlider">Cordyceps Fungal Clusters</label>
+    <div class="range-slider">
+        <input type="range" id="cordycepsSlider" min="0" max="10" value="0">
+        <span id="cordycepsVal">0</span>
+    </div>`;
+    controlPane.appendChild(fungalGroup);
+    document.getElementById('cordycepsSlider').addEventListener('input', (e) => {
+        document.getElementById('cordycepsVal').innerText = e.target.value;
+        renderSign();
+    });
 }
 
 document.fonts.ready.then(() => {
