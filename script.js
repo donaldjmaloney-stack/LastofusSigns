@@ -244,85 +244,86 @@ function drawFireflyGraffiti(x, y, color) {
         ctx.fill();
     }
 
-    // 2. Canonical Center Body & Tapered Split Tail
+    // 2. Canonical Center Body & Tapered Split Tail (Flipped Correctly Downward)
     ctx.beginPath();
-    ctx.moveTo(0, -35);      // Top tip of diamond head
-    ctx.lineTo(3.5, -23);    // Upper thorax collar
+    ctx.moveTo(0, 35);       // Bottom tip of diamond tail
+    ctx.lineTo(3.5, 23);     // Lower abdomen line
     ctx.lineTo(2, 0);        // Thorax midpoint
-    ctx.lineTo(4, 22);       // Lower abdomen flank
-    ctx.lineTo(6.5, 45);     // Right tail prong terminal tip
-    ctx.lineTo(2.5, 45);     // Right prong inner wall
-    ctx.lineTo(0, 26);       // Tail bifurcation center notch
-    ctx.lineTo(-2.5, 45);    // Left prong inner wall
-    ctx.lineTo(-6.5, 45);    // Left tail prong terminal tip
-    ctx.lineTo(-4, 22);      // Lower abdomen flank
-    ctx.lineTo(-2, 0);        // Thorax midpoint
-    ctx.lineTo(-3.5, -23);   // Upper thorax collar
+    ctx.lineTo(4, -22);      // Upper neck flank
+    ctx.lineTo(6.5, -45);    // Right antenna terminal tip
+    ctx.lineTo(2.5, -45);    // Right antenna inner wall
+    ctx.lineTo(0, -26);      // Head center notch
+    ctx.lineTo(-2.5, -45);   // Left antenna inner wall
+    ctx.lineTo(-6.5, -45);   // Left antenna terminal tip
+    ctx.lineTo(-4, -22);     // Upper neck flank
+    ctx.lineTo(-2, 0);       // Thorax midpoint
+    ctx.lineTo(-3.5, 23);    // Lower abdomen line
     ctx.closePath();
     ctx.fill();
 
-    // 3. Angular Linear Antenna Flares
+    // 3. Angular Linear Bottom Tail Flares
     ctx.beginPath();
-    ctx.moveTo(0, -31);
-    ctx.lineTo(15, -50);
-    ctx.lineTo(18, -47);
-    ctx.lineTo(2.5, -26);
+    ctx.moveTo(0, 31);
+    ctx.lineTo(15, 50);
+    ctx.lineTo(18, 47);
+    ctx.lineTo(2.5, 26);
     ctx.closePath();
     ctx.fill();
 
     ctx.beginPath();
-    ctx.moveTo(0, -31);
-    ctx.lineTo(-15, -50);
-    ctx.lineTo(-18, -47);
-    ctx.lineTo(-2.5, -26);
+    ctx.moveTo(0, 31);
+    ctx.lineTo(-15, 50);
+    ctx.lineTo(-18, 47);
+    ctx.lineTo(-2.5, 26);
     ctx.closePath();
     ctx.fill();
 
-    // 4. Official Geometric Blade Wings (Symmetric Dual Array)
+    // 4. Official Geometric Blade Wings Flipped Upward and Outward
     let sides = [-1, 1];
     sides.forEach(s => {
-        // TOP WING BLADE (Dominant outer wedge, swept upward)
+        // TOP MAIN WING BLADE (Dominant upper wedge, flared out to top corners)
         ctx.beginPath();
-        ctx.moveTo(s * 2.5, -22);
-        ctx.lineTo(s * 66, -41); // Sharp outer top vertex
-        ctx.lineTo(s * 62, -27); // Flat cut outer lower vertex
-        ctx.lineTo(s * 26, -16); // Intermediate geometric chest compression notch
-        ctx.lineTo(s * 2.5, -12);
+        ctx.moveTo(s * 2.5, -20);
+        ctx.lineTo(s * 66, -39); // Sharp outer top vertex
+        ctx.lineTo(s * 62, -25); // Flat cut outer lower vertex
+        ctx.lineTo(s * 26, -14); // Inner fold notch
+        ctx.lineTo(s * 2.5, -10);
         ctx.closePath();
         ctx.fill();
 
         // MIDDLE WING BLADE (Horizontal linear bar)
         ctx.beginPath();
-        ctx.moveTo(s * 2.5, -6);
-        ctx.lineTo(s * 56, -8);  // Outer upper cut
-        ctx.lineTo(s * 51, 3);   // Outer lower cut
-        ctx.lineTo(s * 21, 4);   // Internal structural fold
-        ctx.lineTo(s * 2.5, 7);
+        ctx.moveTo(s * 2.5, 2);
+        ctx.lineTo(s * 56, 4);   // Outer upper line cut
+        ctx.lineTo(s * 51, -7);  // Outer lower line cut
+        ctx.lineTo(s * 21, -8);  // Internal frame joint
+        ctx.lineTo(s * 2.5, -1);
         ctx.closePath();
         ctx.fill();
 
         // BOTTOM WING BLADE (Small lower support wedge, angled downward)
         ctx.beginPath();
-        ctx.moveTo(s * 3, 13);
-        ctx.lineTo(s * 39, 16);  // Outer downward line tip
-        ctx.lineTo(s * 33, 27);  // Lower horizontal relief cut
-        ctx.lineTo(s * 3, 19);
+        ctx.moveTo(s * 3, 17);
+        ctx.lineTo(s * 39, 14);  // Outer downward line tip
+        ctx.lineTo(s * 33, 3);   // Lower relief cut
+        ctx.lineTo(s * 3, 11);
         ctx.closePath();
         ctx.fill();
     });
 
-    // 5. Vertical Paint Runs & Droplets
+    // 5. Vertical Paint Runs dripping from the lowest wings downward
     for(let d = 0; d < 4; d++) {
-        let dx = (seededRandom() - 0.5) * 45;
-        let dl = seededRandom() * 45 + 20;
+        let dx = (seededRandom() - 0.5) * 65;
+        let startY = seededRandom() * 20 + 5;
+        let dl = seededRandom() * 45 + 25;
         let dw = seededRandom() * 1.8 + 1.5;
         
         // Dynamic drop stream
-        ctx.fillRect(dx - dw/2, 35, dw, dl);
+        ctx.fillRect(dx - dw/2, startY, dw, dl);
         
-        // Terminal bulbous paint droplet hanging at the base of the run
+        // Terminal paint droplet hanging at the base of the run
         ctx.beginPath();
-        ctx.arc(dx, 35 + dl, dw * 0.9, 0, Math.PI * 2);
+        ctx.arc(dx, startY + dl, dw * 0.9, 0, Math.PI * 2);
         ctx.fill();
     }
 
