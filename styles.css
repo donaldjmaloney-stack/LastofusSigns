@@ -75,6 +75,8 @@ canvas {
 
 .controls-pane {
     width: 380px;
+    max-height: 85vh;
+    overflow-y: auto;
     background-color: var(--panel-color);
     padding: 25px;
     border-radius: 12px;
