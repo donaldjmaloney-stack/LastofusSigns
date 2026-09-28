@@ -77,37 +77,39 @@ const line3 = document.getElementById('line3');
 const decayLevel = document.getElementById('decayLevel');
 const bulletHoles = document.getElementById('bulletHoles');
 
-// New control panel elements dynamically added via JS
 const controlPane = document.querySelector('.controls-pane');
 
-const ffGroup = document.createElement('div');
-ffGroup.className = 'control-group';
-ffGroup.innerHTML = `<label for="fireflyToggle">Fireflies Graffiti Logo</label>
-<select id="fireflyToggle">
-    <option value="NONE">No Graffiti</option>
-    <option value="WHITE" selected>White Stencil Paint</option>
-    <option value="BLACK">Black Splatter Paint</option>
-</select>`;
-controlPane.appendChild(ffGroup);
+// Check to prevent duplicate injection loops on reload
+if (!document.getElementById('fireflyToggle')) {
+    const ffGroup = document.createElement('div');
+    ffGroup.className = 'control-group';
+    ffGroup.innerHTML = `<label for="fireflyToggle">Fireflies Graffiti Logo</label>
+    <select id="fireflyToggle">
+        <option value="NONE">No Graffiti</option>
+        <option value="WHITE" selected>White Stencil Paint</option>
+        <option value="BLACK">Black Splatter Paint</option>
+    </select>`;
+    controlPane.appendChild(ffGroup);
 
-const rustGroup = document.createElement('div');
-rustGroup.className = 'control-group';
-rustGroup.innerHTML = `<label for="rustSlider">Rust Streaks Severity</label>
-<div class="range-slider">
-    <input type="range" id="rustSlider" min="0" max="10" value="5">
-    <span id="rustVal">5</span>
-</div>`;
-controlPane.appendChild(rustGroup);
+    const rustGroup = document.createElement('div');
+    rustGroup.className = 'control-group';
+    rustGroup.innerHTML = `<label for="rustSlider">Rust Streaks Severity</label>
+    <div class="range-slider">
+        <input type="range" id="rustSlider" min="0" max="10" value="5">
+        <span id="rustVal">5</span>
+    </div>`;
+    controlPane.appendChild(rustGroup);
 
-const bannerGroup = document.createElement('div');
-bannerGroup.className = 'control-group';
-bannerGroup.innerHTML = `<label for="bannerSelect">Overlay Warning Banner</label>
-<select id="bannerSelect">
-    <option value="NONE" selected>No Banner</option>
-    <option value="FEDRA">FEDRA ZONE - NO UNAUTHORIZED ENTRY</option>
-    <option value="MILITARY">MILITARY CHECKPOINT AHEAD</option>
-</select>`;
-controlPane.appendChild(bannerGroup);
+    const bannerGroup = document.createElement('div');
+    bannerGroup.className = 'control-group';
+    bannerGroup.innerHTML = `<label for="bannerSelect">Overlay Warning Banner</label>
+    <select id="bannerSelect">
+        <option value="NONE" selected>No Banner</option>
+        <option value="FEDRA">FEDRA ZONE - NO UNAUTHORIZED ENTRY</option>
+        <option value="MILITARY">MILITARY CHECKPOINT AHEAD</option>
+    </select>`;
+    controlPane.appendChild(bannerGroup);
+}
 
 const fireflyToggle = document.getElementById('fireflyToggle');
 const rustSlider = document.getElementById('rustSlider');
@@ -218,83 +220,53 @@ function drawShield(type, number, x, y) {
 }
 
 function drawFireflyGraffiti(x, y, color) {
+    const logoImg = document.getElementById('fireflyLogoSource');
+    if (!logoImg) return;
+
     ctx.save();
-    ctx.translate(x, y);
-    ctx.fillStyle = color === 'WHITE' ? 'rgba(235,240,235,0.7)' : 'rgba(12,15,13,0.85)';
     
-    // Splatter texture pass
-    for(let i=0; i<50; i++) {
-        let xo = (Math.random() - 0.5) * 110;
-        let yo = (Math.random() - 0.5) * 110;
-        ctx.beginPath();
-        ctx.arc(xo, yo, Math.random() * 2.5 + 0.5, 0, Math.PI * 2);
-        ctx.fill();
+    // Create a specialized secondary buffer clipping layout to apply weathering
+    let offCanvas = document.createElement('canvas');
+    offCanvas.width = 150;
+    offCanvas.height = 150;
+    let oCtx = offCanvas.getContext('2d');
+
+    // 1. Draw the clean, mathematically perfect SVG shape data onto hidden buffer
+    oCtx.drawImage(logoImg, 15, 15, 120, 120);
+
+    // 2. Re-mask the silhouette with randomized paint speckles and drips
+    oCtx.globalCompositeOperation = 'source-in';
+    oCtx.fillStyle = color === 'WHITE' ? 'rgba(230,238,232,0.72)' : 'rgba(12,16,14,0.85)';
+    oCtx.fillRect(0, 0, 150, 150);
+
+    // Add textured noise overlays directly inside the bounds of the stencil vector
+    oCtx.fillStyle = color === 'WHITE' ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
+    for(let i=0; i<60; i++) {
+        oCtx.fillRect(Math.random()*150, Math.random()*150, Math.random()*3+1, Math.random()*3+1);
     }
 
-    // 1. Thorax Spine & Tail Cluster (Canonical Split Tip)
-    ctx.beginPath();
-    ctx.moveTo(0, -32);
-    ctx.lineTo(2.5, -15);
-    ctx.lineTo(2, 20);
-    ctx.lineTo(5, 42); // Right tail prong
-    ctx.lineTo(1.5, 42);
-    ctx.lineTo(0, 22);  // Split indentation
-    ctx.lineTo(-1.5, 42);
-    ctx.lineTo(-5, 42); // Left tail prong
-    ctx.lineTo(-2, 20);
-    ctx.lineTo(-2.5, -15);
-    ctx.closePath();
-    ctx.fill();
+    ctx.restore();
+    ctx.save();
+    
+    // 3. Draw the newly textured, authentic vector logo onto the main highway sign plate
+    ctx.drawImage(offCanvas, x - 75, y - 75);
 
-    // 2. Antenna Flares
-    ctx.beginPath();
-    ctx.moveTo(0, -32);
-    ctx.lineTo(-14, -48);
-    ctx.lineTo(-11, -49);
-    ctx.lineTo(0, -35);
-    ctx.lineTo(11, -49);
-    ctx.lineTo(14, -48);
-    ctx.closePath();
-    ctx.fill();
-
-    // 3. Sharp Geometric Wings Array
-    let sides = [-1, 1];
-    sides.forEach(s => {
-        // Top Main Wing Blade (Straight parallel cuts)
-        ctx.beginPath();
-        ctx.moveTo(s * 3, -24);
-        ctx.lineTo(s * 58, -38);
-        ctx.lineTo(s * 54, -26);
-        ctx.lineTo(s * 28, -20);
-        ctx.lineTo(s * 3, -15);
-        ctx.closePath();
-        ctx.fill();
-
-        // Middle Wing Blade
-        ctx.beginPath();
-        ctx.moveTo(s * 3, -10);
-        ctx.lineTo(s * 48, -12);
-        ctx.lineTo(s * 44, -3);
-        ctx.lineTo(s * 3, 4);
-        ctx.closePath();
-        ctx.fill();
-
-        // Bottom Lower Angled Wing Blade
-        ctx.beginPath();
-        ctx.moveTo(s * 3, 8);
-        ctx.lineTo(s * 32, 11);
-        ctx.lineTo(s * 26, 22);
-        ctx.lineTo(s * 3, 15);
-        ctx.closePath();
-        ctx.fill();
-    });
-
-    // Drips passing under the canvas boundary
+    // 4. Draw paint drips streaming downward past the bottom boundary
+    ctx.fillStyle = color === 'WHITE' ? 'rgba(230,238,232,0.65)' : 'rgba(12,16,14,0.75)';
     for(let d=0; d<4; d++) {
-        let dx = (Math.random() - 0.5) * 35;
-        let dl = Math.random() * 40 + 20;
-        ctx.fillRect(dx - 1, 35, Math.random() * 1.5 + 1.5, dl);
+        let dx = x + (Math.random() - 0.5) * 35;
+        let dl = Math.random() * 45 + 15;
+        ctx.fillRect(dx - 1, y + 25, Math.random() * 1.5 + 1.5, dl);
     }
+
+    // Outer edge overspray aerosol mist effects
+    for(let s=0; s<45; s++) {
+        let sx = x + (Math.random() - 0.5) * 130;
+        let sy = y + (Math.random() - 0.5) * 130;
+        ctx.fillStyle = color === 'WHITE' ? `rgba(230,238,232,${Math.random()*0.15})` : `rgba(12,16,14,${Math.random()*0.15})`;
+        ctx.beginPath(); ctx.arc(sx, sy, Math.random()*2+0.5, 0, Math.PI*2); ctx.fill();
+    }
+    
     ctx.restore();
 }
 
@@ -346,12 +318,10 @@ function renderSign() {
     ctx.fillStyle = `rgba(225, 235, 228, ${0.75 - (decay * 0.05)})`; 
     ctx.fillText(line3.value.toUpperCase(), w / 2, h / 2 + 145);
 
-    // Render Firefly logo stencil layer
     if (fireflyToggle.value !== 'NONE') {
-        drawFireflyGraffiti(w / 2 + 250, h / 2 - 95, fireflyToggle.value);
+        drawFireflyGraffiti(w / 2 + 240, h / 2 - 95, fireflyToggle.value);
     }
 
-    // Render FEDRA / Military Warning banner overlays
     if (bannerSelect.value !== 'NONE') {
         ctx.fillStyle = '#942b2b';
         ctx.fillRect(padding + 20, h - 95, sw - 40, 45);
@@ -376,6 +346,12 @@ function renderSign() {
             ctx.fillStyle = streakGrad; ctx.fillRect(pt.x - 2, pt.y + 2, 4, activeRust * 8);
         }
     });
+}
+
+// Initial source image asset checking hook on boot
+const baseLogo = document.getElementById('fireflyLogoSource');
+if(baseLogo) {
+    baseLogo.onload = () => renderSign();
 }
 
 document.fonts.ready.then(() => {
