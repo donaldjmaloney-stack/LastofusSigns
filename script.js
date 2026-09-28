@@ -220,115 +220,72 @@ function drawShield(type, number, x, y) {
 }
 
 function drawFireflyGraffiti(x, y, color) {
+    const pngSource = document.getElementById('fireflyLocalPNG');
+    
+    // Safety check: if the PNG file isn't uploaded yet, skip drawing so the app doesn't crash
+    if (!pngSource) return;
+
     ctx.save();
-    ctx.translate(x, y);
     
-    // Set stencil paint base color with authentic opacity
-    ctx.fillStyle = color === 'WHITE' ? 'rgba(230, 238, 232, 0.78)' : 'rgba(14, 18, 15, 0.88)';
-    
-    // Seeded random system to prevent spray paint particles from flickering when typing text
+    // 1. Set up a temporary hidden canvas buffer to strip the PNG's original color and apply weathering
+    let offCanvas = document.createElement('canvas');
+    offCanvas.width = 160;
+    offCanvas.height = 160;
+    let oCtx = offCanvas.getContext('2d');
+
+    // Draw your clean firefly.png file onto the hidden layer
+    oCtx.drawImage(pngSource, 10, 10, 140, 140);
+
+    // 2. The Stencil Mask: Turn the PNG silhouette into a paint layer (White or Black)
+    oCtx.globalCompositeOperation = 'source-in';
+    oCtx.fillStyle = color === 'WHITE' ? 'rgba(230, 238, 232, 0.78)' : 'rgba(14, 18, 15, 0.88)';
+    oCtx.fillRect(0, 0, 160, 160);
+
+    // 3. Stencil Texture: Add microscopic specs inside the bounds of the logo to mimic porous spray paint
+    oCtx.globalCompositeOperation = 'source-atop';
+    oCtx.fillStyle = color === 'WHITE' ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)';
+    for(let i = 0; i < 40; i++) {
+        oCtx.fillRect(Math.random() * 160, Math.random() * 160, Math.random() * 2 + 1, Math.random() * 2 + 1);
+    }
+
+    // 4. Paint the finalized textured stencil logo onto your green highway road sign
+    ctx.drawImage(offCanvas, x - 80, y - 80);
+
+    // 5. Post-Processing: Seeded aerosol overspray mist outside the stencil boundaries
     let localSeed = 54321;
     function seededRandom() {
         localSeed = (localSeed * 9301 + 49297) % 233280;
         return localSeed / 233280;
     }
 
-    // 1. Aerosol Mist Overspray Pass (Simulates authentic stencil spray bleed)
-    for(let i = 0; i < 160; i++) {
+    for(let s = 0; s < 50; s++) {
         let angle = seededRandom() * Math.PI * 2;
-        let radius = seededRandom() * 75;
-        let sx = Math.cos(angle) * radius;
-        let sy = Math.sin(angle) * radius;
-        ctx.beginPath();
-        ctx.arc(sx, sy, seededRandom() * 2.2 + 0.4, 0, Math.PI * 2);
+        let radius = seededRandom() * 85;
+        let sx = x + Math.cos(angle) * radius;
+        let sy = y + Math.sin(angle) * radius;
+        ctx.fillStyle = color === 'WHITE' ? `rgba(230,238,232,${seededRandom() * 0.12})` : `rgba(14,18,15,${seededRandom() * 0.12})`;
+        ctx.beginPath(); 
+        ctx.arc(sx, sy, seededRandom() * 2.5 + 0.5, 0, Math.PI * 2); 
         ctx.fill();
     }
 
-    // 2. Canonical Center Body & Tapered Split Tail (Flipped Correctly Downward)
-    ctx.beginPath();
-    ctx.moveTo(0, 35);       // Bottom tip of diamond tail
-    ctx.lineTo(3.5, 23);     // Lower abdomen line
-    ctx.lineTo(2, 0);        // Thorax midpoint
-    ctx.lineTo(4, -22);      // Upper neck flank
-    ctx.lineTo(6.5, -45);    // Right antenna terminal tip
-    ctx.lineTo(2.5, -45);    // Right antenna inner wall
-    ctx.lineTo(0, -26);      // Head center notch
-    ctx.lineTo(-2.5, -45);   // Left antenna inner wall
-    ctx.lineTo(-6.5, -45);   // Left antenna terminal tip
-    ctx.lineTo(-4, -22);     // Upper neck flank
-    ctx.lineTo(-2, 0);       // Thorax midpoint
-    ctx.lineTo(-3.5, 23);    // Lower abdomen line
-    ctx.closePath();
-    ctx.fill();
-
-    // 3. Angular Linear Bottom Tail Flares
-    ctx.beginPath();
-    ctx.moveTo(0, 31);
-    ctx.lineTo(15, 50);
-    ctx.lineTo(18, 47);
-    ctx.lineTo(2.5, 26);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.moveTo(0, 31);
-    ctx.lineTo(-15, 50);
-    ctx.lineTo(-18, 47);
-    ctx.lineTo(-2.5, 26);
-    ctx.closePath();
-    ctx.fill();
-
-    // 4. Official Geometric Blade Wings Flipped Upward and Outward
-    let sides = [-1, 1];
-    sides.forEach(s => {
-        // TOP MAIN WING BLADE (Dominant upper wedge, flared out to top corners)
-        ctx.beginPath();
-        ctx.moveTo(s * 2.5, -20);
-        ctx.lineTo(s * 66, -39); // Sharp outer top vertex
-        ctx.lineTo(s * 62, -25); // Flat cut outer lower vertex
-        ctx.lineTo(s * 26, -14); // Inner fold notch
-        ctx.lineTo(s * 2.5, -10);
-        ctx.closePath();
-        ctx.fill();
-
-        // MIDDLE WING BLADE (Horizontal linear bar)
-        ctx.beginPath();
-        ctx.moveTo(s * 2.5, 2);
-        ctx.lineTo(s * 56, 4);   // Outer upper line cut
-        ctx.lineTo(s * 51, -7);  // Outer lower line cut
-        ctx.lineTo(s * 21, -8);  // Internal frame joint
-        ctx.lineTo(s * 2.5, -1);
-        ctx.closePath();
-        ctx.fill();
-
-        // BOTTOM WING BLADE (Small lower support wedge, angled downward)
-        ctx.beginPath();
-        ctx.moveTo(s * 3, 17);
-        ctx.lineTo(s * 39, 14);  // Outer downward line tip
-        ctx.lineTo(s * 33, 3);   // Lower relief cut
-        ctx.lineTo(s * 3, 11);
-        ctx.closePath();
-        ctx.fill();
-    });
-
-    // 5. Vertical Paint Runs dripping from the lowest wings downward
+    // 6. Draw wet survivalist spray runs dripping vertically down the plate
+    ctx.fillStyle = color === 'WHITE' ? 'rgba(230,238,232,0.65)' : 'rgba(14,18,15,0.75)';
     for(let d = 0; d < 4; d++) {
-        let dx = (seededRandom() - 0.5) * 65;
-        let startY = seededRandom() * 20 + 5;
-        let dl = seededRandom() * 45 + 25;
-        let dw = seededRandom() * 1.8 + 1.5;
-        
-        // Dynamic drop stream
+        let dx = x + (seededRandom() - 0.5) * 45;
+        let startY = y + 15 + (seededRandom() * 15);
+        let dl = seededRandom() * 45 + 20;
+        let dw = seededRandom() * 1.5 + 1.2;
         ctx.fillRect(dx - dw/2, startY, dw, dl);
         
-        // Terminal paint droplet hanging at the base of the run
         ctx.beginPath();
         ctx.arc(dx, startY + dl, dw * 0.9, 0, Math.PI * 2);
         ctx.fill();
     }
-
+    
     ctx.restore();
 }
+
 
 function renderSign() {
     const w = canvas.width; const h = canvas.height;
