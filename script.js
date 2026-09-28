@@ -220,61 +220,80 @@ function drawShield(type, number, x, y) {
 function drawFireflyGraffiti(x, y, color) {
     ctx.save();
     ctx.translate(x, y);
-    ctx.fillStyle = color === 'WHITE' ? 'rgba(230,235,230,0.65)' : 'rgba(15,18,16,0.8)';
+    ctx.fillStyle = color === 'WHITE' ? 'rgba(235,240,235,0.7)' : 'rgba(12,15,13,0.85)';
     
-    // Stencil splatter noise simulation loops
-    for(let i=0; i<40; i++) {
-        let xo = (Math.random() - 0.5) * 90;
-        let yo = (Math.random() - 0.5) * 90;
+    // Splatter texture pass
+    for(let i=0; i<50; i++) {
+        let xo = (Math.random() - 0.5) * 110;
+        let yo = (Math.random() - 0.5) * 110;
         ctx.beginPath();
-        ctx.arc(xo, yo, Math.random() * 3 + 0.5, 0, Math.PI * 2);
+        ctx.arc(xo, yo, Math.random() * 2.5 + 0.5, 0, Math.PI * 2);
         ctx.fill();
     }
 
-    // Mathematical projection paths for central alignment beams
+    // 1. Thorax Spine & Tail Cluster (Canonical Split Tip)
     ctx.beginPath();
-    ctx.moveTo(-5, -45); ctx.lineTo(5, -45);
-    ctx.lineTo(3, 40); ctx.lineTo(-3, 40);
-    ctx.closePath(); ctx.fill();
-
-    // Antenna array coordinate maps
-    ctx.beginPath();
-    ctx.moveTo(0, -42); ctx.quadraticCurveTo(-15, -55, -25, -50);
-    ctx.lineTo(-23, -46); ctx.quadraticCurveTo(-13, -50, 0, -38);
-    ctx.fill();
-    
-    ctx.beginPath();
-    ctx.moveTo(0, -42); ctx.quadraticCurveTo(15, -55, 25, -50);
-    ctx.lineTo(23, -46); ctx.quadraticCurveTo(13, -50, 0, -38);
+    ctx.moveTo(0, -32);
+    ctx.lineTo(2.5, -15);
+    ctx.lineTo(2, 20);
+    ctx.lineTo(5, 42); // Right tail prong
+    ctx.lineTo(1.5, 42);
+    ctx.lineTo(0, 22);  // Split indentation
+    ctx.lineTo(-1.5, 42);
+    ctx.lineTo(-5, 42); // Left tail prong
+    ctx.lineTo(-2, 20);
+    ctx.lineTo(-2.5, -15);
+    ctx.closePath();
     ctx.fill();
 
-    // Outer structural wing curvature vectors
-    let wingSides = [-1, 1];
-    wingSides.forEach(s => {
+    // 2. Antenna Flares
+    ctx.beginPath();
+    ctx.moveTo(0, -32);
+    ctx.lineTo(-14, -48);
+    ctx.lineTo(-11, -49);
+    ctx.lineTo(0, -35);
+    ctx.lineTo(11, -49);
+    ctx.lineTo(14, -48);
+    ctx.closePath();
+    ctx.fill();
+
+    // 3. Sharp Geometric Wings Array
+    let sides = [-1, 1];
+    sides.forEach(s => {
+        // Top Main Wing Blade (Straight parallel cuts)
         ctx.beginPath();
-        ctx.moveTo(s * 3, -25);
-        ctx.quadraticCurveTo(s * 45, -45, s * 50, -25);
-        ctx.quadraticCurveTo(s * 35, -20, s * 3, -10);
+        ctx.moveTo(s * 3, -24);
+        ctx.lineTo(s * 58, -38);
+        ctx.lineTo(s * 54, -26);
+        ctx.lineTo(s * 28, -20);
+        ctx.lineTo(s * 3, -15);
+        ctx.closePath();
         ctx.fill();
 
+        // Middle Wing Blade
         ctx.beginPath();
-        ctx.moveTo(s * 3, -5);
-        ctx.quadraticCurveTo(s * 55, -15, s * 55, 5);
-        ctx.quadraticCurveTo(s * 35, 5, s * 3, 10);
+        ctx.moveTo(s * 3, -10);
+        ctx.lineTo(s * 48, -12);
+        ctx.lineTo(s * 44, -3);
+        ctx.lineTo(s * 3, 4);
+        ctx.closePath();
         ctx.fill();
 
+        // Bottom Lower Angled Wing Blade
         ctx.beginPath();
-        ctx.moveTo(s * 3, 15);
-        ctx.quadraticCurveTo(s * 40, 20, s * 40, 35);
-        ctx.quadraticCurveTo(s * 25, 25, s * 3, 25);
+        ctx.moveTo(s * 3, 8);
+        ctx.lineTo(s * 32, 11);
+        ctx.lineTo(s * 26, 22);
+        ctx.lineTo(s * 3, 15);
+        ctx.closePath();
         ctx.fill();
     });
 
-    // Realistic run dripping artifacts underneath logo base
-    for(let d=0; d<3; d++) {
-        let dx = (Math.random() - 0.5) * 40;
-        let dl = Math.random() * 35 + 15;
-        ctx.fillRect(dx, 30, Math.random() * 2 + 1, dl);
+    // Drips passing under the canvas boundary
+    for(let d=0; d<4; d++) {
+        let dx = (Math.random() - 0.5) * 35;
+        let dl = Math.random() * 40 + 20;
+        ctx.fillRect(dx - 1, 35, Math.random() * 1.5 + 1.5, dl);
     }
     ctx.restore();
 }
