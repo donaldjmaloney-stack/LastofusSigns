@@ -218,55 +218,114 @@ function drawShield(type, number, x, y) {
     }
     ctx.restore();
 }
+
 function drawFireflyGraffiti(x, y, color) {
     ctx.save();
+    ctx.translate(x, y);
     
-    // Creating an Image object directly inside JavaScript using an embedded Base64 string
-    const logoImg = new Image();
+    // Set stencil paint base color with authentic opacity
+    ctx.fillStyle = color === 'WHITE' ? 'rgba(230, 238, 232, 0.78)' : 'rgba(14, 18, 15, 0.88)';
     
-    // This is the clean, exact vector data of the Fireflies Faction Logo converted directly to safe text code
-    logoImg.src = "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' viewBox='0 0 100 100'><path d='M50,15 L52,35 L51,75 L53,88 L50.5,88 L50,76 L49.5,88 L47,88 L49,75 L48,35 Z' /><path d='M50,20 L35,8 L38,6 L50,17 L62,6 L65,8 Z' /><path d='M48,22 C10,12 8,26 28,32 C8,35 12,48 48,42' /><path d='M52,22 C90,12 92,26 72,32 C92,35 88,48 52,42' /><path d='M48,46 C6,40 10,60 48,54' /><path d='M52,46 C94,40 90,60 52,54' /><path d='M48,58 C16,56 22,78 48,66' /><path d='M52,58 C84,56 78,78 52,66' /></svg>";
-
-    // Set up a temporary canvas buffer to mask and tint the logo cleanly
-    let offCanvas = document.createElement('canvas');
-    offCanvas.width = 150;
-    offCanvas.height = 150;
-    let oCtx = offCanvas.getContext('2d');
-
-    // Draw the perfect embedded SVG data shape
-    oCtx.drawImage(logoImg, 15, 15, 120, 120);
-
-    // Turn the logo shape into a stencil stencil cutout and color it (White or Black)
-    oCtx.globalCompositeOperation = 'source-in';
-    oCtx.fillStyle = color === 'WHITE' ? 'rgba(235,240,235,0.72)' : 'rgba(12,16,14,0.88)';
-    oCtx.fillRect(0, 0, 150, 150);
-
-    // Spray paint splatter textures inside the logo silhouette boundaries
-    oCtx.globalCompositeOperation = 'source-atop';
-    oCtx.fillStyle = color === 'WHITE' ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.45)';
-    for(let i=0; i<45; i++) {
-        oCtx.fillRect(Math.random()*150, Math.random()*150, Math.random()*2+1, Math.random()*2+1);
+    // Seeded random system to prevent spray paint particles from flickering when typing text
+    let localSeed = 54321;
+    function seededRandom() {
+        localSeed = (localSeed * 9301 + 49297) % 233280;
+        return localSeed / 233280;
     }
 
-    // Apply the textured, official silhouette design back onto the main road sign canvas
-    ctx.drawImage(offCanvas, x - 75, y - 75);
-
-    // Draw realistic survivalist spray drips rolling down the sign face
-    ctx.fillStyle = color === 'WHITE' ? 'rgba(230,238,232,0.65)' : 'rgba(12,16,14,0.75)';
-    for(let d=0; d<4; d++) {
-        let dx = x + (Math.random() - 0.5) * 35;
-        let dl = Math.random() * 45 + 15;
-        ctx.fillRect(dx - 1, y + 25, Math.random() * 1.5 + 1.5, dl);
+    // 1. Aerosol Mist Overspray Pass (Simulates authentic stencil spray bleed)
+    for(let i = 0; i < 160; i++) {
+        let angle = seededRandom() * Math.PI * 2;
+        let radius = seededRandom() * 75;
+        let sx = Math.cos(angle) * radius;
+        let sy = Math.sin(angle) * radius;
+        ctx.beginPath();
+        ctx.arc(sx, sy, seededRandom() * 2.2 + 0.4, 0, Math.PI * 2);
+        ctx.fill();
     }
 
-    // Aerosol paint overspray mist effect outside the stencil boundaries
-    for(let s=0; s<40; s++) {
-        let sx = x + (Math.random() - 0.5) * 140;
-        let sy = y + (Math.random() - 0.5) * 140;
-        ctx.fillStyle = color === 'WHITE' ? `rgba(230,238,232,${Math.random()*0.12})` : `rgba(12,16,14,${Math.random()*0.12})`;
-        ctx.beginPath(); ctx.arc(sx, sy, Math.random()*2.5+0.5, 0, Math.PI*2); ctx.fill();
+    // 2. Canonical Center Body & Tapered Split Tail
+    ctx.beginPath();
+    ctx.moveTo(0, -35);      // Top tip of diamond head
+    ctx.lineTo(3.5, -23);    // Upper thorax collar
+    ctx.lineTo(2, 0);        // Thorax midpoint
+    ctx.lineTo(4, 22);       // Lower abdomen flank
+    ctx.lineTo(6.5, 45);     // Right tail prong terminal tip
+    ctx.lineTo(2.5, 45);     // Right prong inner wall
+    ctx.lineTo(0, 26);       // Tail bifurcation center notch
+    ctx.lineTo(-2.5, 45);    // Left prong inner wall
+    ctx.lineTo(-6.5, 45);    // Left tail prong terminal tip
+    ctx.lineTo(-4, 22);      // Lower abdomen flank
+    ctx.lineTo(-2, 0);        // Thorax midpoint
+    ctx.lineTo(-3.5, -23);   // Upper thorax collar
+    ctx.closePath();
+    ctx.fill();
+
+    // 3. Angular Linear Antenna Flares
+    ctx.beginPath();
+    ctx.moveTo(0, -31);
+    ctx.lineTo(15, -50);
+    ctx.lineTo(18, -47);
+    ctx.lineTo(2.5, -26);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(0, -31);
+    ctx.lineTo(-15, -50);
+    ctx.lineTo(-18, -47);
+    ctx.lineTo(-2.5, -26);
+    ctx.closePath();
+    ctx.fill();
+
+    // 4. Official Geometric Blade Wings (Symmetric Dual Array)
+    let sides = [-1, 1];
+    sides.forEach(s => {
+        // TOP WING BLADE (Dominant outer wedge, swept upward)
+        ctx.beginPath();
+        ctx.moveTo(s * 2.5, -22);
+        ctx.lineTo(s * 66, -41); // Sharp outer top vertex
+        ctx.lineTo(s * 62, -27); // Flat cut outer lower vertex
+        ctx.lineTo(s * 26, -16); // Intermediate geometric chest compression notch
+        ctx.lineTo(s * 2.5, -12);
+        ctx.closePath();
+        ctx.fill();
+
+        // MIDDLE WING BLADE (Horizontal linear bar)
+        ctx.beginPath();
+        ctx.moveTo(s * 2.5, -6);
+        ctx.lineTo(s * 56, -8);  // Outer upper cut
+        ctx.lineTo(s * 51, 3);   // Outer lower cut
+        ctx.lineTo(s * 21, 4);   // Internal structural fold
+        ctx.lineTo(s * 2.5, 7);
+        ctx.closePath();
+        ctx.fill();
+
+        // BOTTOM WING BLADE (Small lower support wedge, angled downward)
+        ctx.beginPath();
+        ctx.moveTo(s * 3, 13);
+        ctx.lineTo(s * 39, 16);  // Outer downward line tip
+        ctx.lineTo(s * 33, 27);  // Lower horizontal relief cut
+        ctx.lineTo(s * 3, 19);
+        ctx.closePath();
+        ctx.fill();
+    });
+
+    // 5. Vertical Paint Runs & Droplets
+    for(let d = 0; d < 4; d++) {
+        let dx = (seededRandom() - 0.5) * 45;
+        let dl = seededRandom() * 45 + 20;
+        let dw = seededRandom() * 1.8 + 1.5;
+        
+        // Dynamic drop stream
+        ctx.fillRect(dx - dw/2, 35, dw, dl);
+        
+        // Terminal bulbous paint droplet hanging at the base of the run
+        ctx.beginPath();
+        ctx.arc(dx, 35 + dl, dw * 0.9, 0, Math.PI * 2);
+        ctx.fill();
     }
-    
+
     ctx.restore();
 }
 
