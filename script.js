@@ -218,40 +218,40 @@ function drawShield(type, number, x, y) {
     }
     ctx.restore();
 }
-
 function drawFireflyGraffiti(x, y, color) {
-    const logoImg = document.getElementById('fireflyLogoSource');
-    if (!logoImg) return;
-
     ctx.save();
     
-    // Create a specialized secondary buffer clipping layout to apply weathering
+    // Creating an Image object directly inside JavaScript using an embedded Base64 string
+    const logoImg = new Image();
+    
+    // This is the clean, exact vector data of the Fireflies Faction Logo converted directly to safe text code
+    logoImg.src = "data:image/svg+xml;utf8,<svg xmlns='http://w3.org' viewBox='0 0 100 100'><path d='M50,15 L52,35 L51,75 L53,88 L50.5,88 L50,76 L49.5,88 L47,88 L49,75 L48,35 Z' /><path d='M50,20 L35,8 L38,6 L50,17 L62,6 L65,8 Z' /><path d='M48,22 C10,12 8,26 28,32 C8,35 12,48 48,42' /><path d='M52,22 C90,12 92,26 72,32 C92,35 88,48 52,42' /><path d='M48,46 C6,40 10,60 48,54' /><path d='M52,46 C94,40 90,60 52,54' /><path d='M48,58 C16,56 22,78 48,66' /><path d='M52,58 C84,56 78,78 52,66' /></svg>";
+
+    // Set up a temporary canvas buffer to mask and tint the logo cleanly
     let offCanvas = document.createElement('canvas');
     offCanvas.width = 150;
     offCanvas.height = 150;
     let oCtx = offCanvas.getContext('2d');
 
-    // 1. Draw the clean, mathematically perfect SVG shape data onto hidden buffer
+    // Draw the perfect embedded SVG data shape
     oCtx.drawImage(logoImg, 15, 15, 120, 120);
 
-    // 2. Re-mask the silhouette with randomized paint speckles and drips
+    // Turn the logo shape into a stencil stencil cutout and color it (White or Black)
     oCtx.globalCompositeOperation = 'source-in';
-    oCtx.fillStyle = color === 'WHITE' ? 'rgba(230,238,232,0.72)' : 'rgba(12,16,14,0.85)';
+    oCtx.fillStyle = color === 'WHITE' ? 'rgba(235,240,235,0.72)' : 'rgba(12,16,14,0.88)';
     oCtx.fillRect(0, 0, 150, 150);
 
-    // Add textured noise overlays directly inside the bounds of the stencil vector
-    oCtx.fillStyle = color === 'WHITE' ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
-    for(let i=0; i<60; i++) {
-        oCtx.fillRect(Math.random()*150, Math.random()*150, Math.random()*3+1, Math.random()*3+1);
+    // Spray paint splatter textures inside the logo silhouette boundaries
+    oCtx.globalCompositeOperation = 'source-atop';
+    oCtx.fillStyle = color === 'WHITE' ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.45)';
+    for(let i=0; i<45; i++) {
+        oCtx.fillRect(Math.random()*150, Math.random()*150, Math.random()*2+1, Math.random()*2+1);
     }
 
-    ctx.restore();
-    ctx.save();
-    
-    // 3. Draw the newly textured, authentic vector logo onto the main highway sign plate
+    // Apply the textured, official silhouette design back onto the main road sign canvas
     ctx.drawImage(offCanvas, x - 75, y - 75);
 
-    // 4. Draw paint drips streaming downward past the bottom boundary
+    // Draw realistic survivalist spray drips rolling down the sign face
     ctx.fillStyle = color === 'WHITE' ? 'rgba(230,238,232,0.65)' : 'rgba(12,16,14,0.75)';
     for(let d=0; d<4; d++) {
         let dx = x + (Math.random() - 0.5) * 35;
@@ -259,12 +259,12 @@ function drawFireflyGraffiti(x, y, color) {
         ctx.fillRect(dx - 1, y + 25, Math.random() * 1.5 + 1.5, dl);
     }
 
-    // Outer edge overspray aerosol mist effects
-    for(let s=0; s<45; s++) {
-        let sx = x + (Math.random() - 0.5) * 130;
-        let sy = y + (Math.random() - 0.5) * 130;
-        ctx.fillStyle = color === 'WHITE' ? `rgba(230,238,232,${Math.random()*0.15})` : `rgba(12,16,14,${Math.random()*0.15})`;
-        ctx.beginPath(); ctx.arc(sx, sy, Math.random()*2+0.5, 0, Math.PI*2); ctx.fill();
+    // Aerosol paint overspray mist effect outside the stencil boundaries
+    for(let s=0; s<40; s++) {
+        let sx = x + (Math.random() - 0.5) * 140;
+        let sy = y + (Math.random() - 0.5) * 140;
+        ctx.fillStyle = color === 'WHITE' ? `rgba(230,238,232,${Math.random()*0.12})` : `rgba(12,16,14,${Math.random()*0.12})`;
+        ctx.beginPath(); ctx.arc(sx, sy, Math.random()*2.5+0.5, 0, Math.PI*2); ctx.fill();
     }
     
     ctx.restore();
