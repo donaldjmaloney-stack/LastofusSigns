@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Last of Us - Roadsign Title Generator</title>
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Overpass:wght@600;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header>
+        <h1>TLOU Sign Generator</h1>
+        <p>Custom post-apocalyptic roadsign layout engine</p>
+    </header>
+
+    <div class="container">
+        
+        <div class="preview-pane">
+            <canvas id="signCanvas" width="900" height="500"></canvas>
+            <button class="btn" id="downloadBtn" style="margin-top: 20px; width: auto; padding: 12px 30px;">Download Image</button>
+        </div>
+
+        <div class="controls-pane">
+            
+            <div class="control-group">
+                <label for="routeSelect">TLOU Game Trek Roads</label>
+                <select id="routeSelect">
+                    <option value="custom">-- Custom Text / Selection --</option>
+                    <option value="tx75" selected>Texas Loop 75 (Austin Escape - Prologue)</option>
+                    <option value="i35">Interstate 35 (Austin to Dallas Corridor)</option>
+                    <option value="i90">Interstate 90 (Boston QZ Outskirts / Lincoln)</option>
+                    <option value="i70">Interstate 70 (Approach to Pittsburgh)</option>
+                    <option value="us11">US Route 11 (Escape from Pittsburgh Shore)</option>
+                    <option value="i15">Interstate 15 (Salt Lake City Arrival)</option>
+                    <option value="us89">US Route 89 (Jackson Hole Approach)</option>
+                </select>
+                <div class="route-info" id="routeDescription">Loading route context...</div>
+            </div>
+
+            <div class="control-group" id="shieldConfigGroup">
+                <label for="shieldType">Shield Base Design</label>
+                <select id="shieldType">
+                    <option value="TEXAS">Texas State Loop (Square)</option>
+                    <option value="INTERSTATE">Interstate Shield (Cutout)</option>
+                    <option value="US">US Route Badge</option>
+                    <option value="NONE">No Shield</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="shieldNumber">Shield Number / Route Text</label>
+                <input type="text" id="shieldNumber" value="10">
+            </div>
+
+            <div class="control-group">
+                <label for="line1">Destination Line 1</label>
+                <input type="text" id="line1" value="OUTBREAK DAY">
+            </div>
+
+            <div class="control-group">
+                <label for="line2">Exit Info Line 2</label>
+                <input type="text" id="line2" value="EXIT 2013">
+            </div>
+
+            <div class="control-group">
+                <label for="line3">Status Line 3</label>
+                <input type="text" id="line3" value="CURRENT DAY QZ">
+            </div>
+
+            <div class="control-group">
+                <label for="decayLevel">Decay & Weathering Severity</label>
+                <div class="range-slider">
+                    <input type="range" id="decayLevel" min="1" max="10" value="6">
+                    <span id="decayVal">6</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="bulletHoles">Bullet Impacts</label>
+                <div class="range-slider">
+                    <input type="range" id="bulletHoles" min="0" max="15" value="5">
+                    <span id="bulletVal">5</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
