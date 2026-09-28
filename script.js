@@ -77,10 +77,47 @@ const line3 = document.getElementById('line3');
 const decayLevel = document.getElementById('decayLevel');
 const bulletHoles = document.getElementById('bulletHoles');
 
+// New control panel elements dynamically added via JS
+const controlPane = document.querySelector('.controls-pane');
+
+const ffGroup = document.createElement('div');
+ffGroup.className = 'control-group';
+ffGroup.innerHTML = `<label for="fireflyToggle">Fireflies Graffiti Logo</label>
+<select id="fireflyToggle">
+    <option value="NONE">No Graffiti</option>
+    <option value="WHITE" selected>White Stencil Paint</option>
+    <option value="BLACK">Black Splatter Paint</option>
+</select>`;
+controlPane.appendChild(ffGroup);
+
+const rustGroup = document.createElement('div');
+rustGroup.className = 'control-group';
+rustGroup.innerHTML = `<label for="rustSlider">Rust Streaks Severity</label>
+<div class="range-slider">
+    <input type="range" id="rustSlider" min="0" max="10" value="5">
+    <span id="rustVal">5</span>
+</div>`;
+controlPane.appendChild(rustGroup);
+
+const bannerGroup = document.createElement('div');
+bannerGroup.className = 'control-group';
+bannerGroup.innerHTML = `<label for="bannerSelect">Overlay Warning Banner</label>
+<select id="bannerSelect">
+    <option value="NONE" selected>No Banner</option>
+    <option value="FEDRA">FEDRA ZONE - NO UNAUTHORIZED ENTRY</option>
+    <option value="MILITARY">MILITARY CHECKPOINT AHEAD</option>
+</select>`;
+controlPane.appendChild(bannerGroup);
+
+const fireflyToggle = document.getElementById('fireflyToggle');
+const rustSlider = document.getElementById('rustSlider');
+const bannerSelect = document.getElementById('bannerSelect');
+
+rustSlider.addEventListener('input', (e) => document.getElementById('rustVal').innerText = e.target.value);
 document.getElementById('decayLevel').addEventListener('input', (e) => document.getElementById('decayVal').innerText = e.target.value);
 document.getElementById('bulletHoles').addEventListener('input', (e) => document.getElementById('bulletVal').innerText = e.target.value);
 
-[routeSelect, shieldType, shieldNumber, line1, line2, line3, decayLevel, bulletHoles].forEach(element => {
+[routeSelect, shieldType, shieldNumber, line1, line2, line3, decayLevel, bulletHoles, fireflyToggle, rustSlider, bannerSelect].forEach(element => {
     element.addEventListener('input', renderSign);
 });
 
@@ -177,65 +214,99 @@ function drawShield(type, number, x, y) {
         ctx.textAlign = 'center';
         ctx.fillText(number, 0, 12);
     }
+    ctx.restore();
+}
 
+function drawFireflyGraffiti(x, y, color) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = color === 'WHITE' ? 'rgba(230,235,230,0.65)' : 'rgba(15,18,16,0.8)';
+    
+    // Stencil splatter noise simulation loops
+    for(let i=0; i<40; i++) {
+        let xo = (Math.random() - 0.5) * 90;
+        let yo = (Math.random() - 0.5) * 90;
+        ctx.beginPath();
+        ctx.arc(xo, yo, Math.random() * 3 + 0.5, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    // Mathematical projection paths for central alignment beams
+    ctx.beginPath();
+    ctx.moveTo(-5, -45); ctx.lineTo(5, -45);
+    ctx.lineTo(3, 40); ctx.lineTo(-3, 40);
+    ctx.closePath(); ctx.fill();
+
+    // Antenna array coordinate maps
+    ctx.beginPath();
+    ctx.moveTo(0, -42); ctx.quadraticCurveTo(-15, -55, -25, -50);
+    ctx.lineTo(-23, -46); ctx.quadraticCurveTo(-13, -50, 0, -38);
+    ctx.fill();
+    
+    ctx.beginPath();
+    ctx.moveTo(0, -42); ctx.quadraticCurveTo(15, -55, 25, -50);
+    ctx.lineTo(23, -46); ctx.quadraticCurveTo(13, -50, 0, -38);
+    ctx.fill();
+
+    // Outer structural wing curvature vectors
+    let wingSides = [-1, 1];
+    wingSides.forEach(s => {
+        ctx.beginPath();
+        ctx.moveTo(s * 3, -25);
+        ctx.quadraticCurveTo(s * 45, -45, s * 50, -25);
+        ctx.quadraticCurveTo(s * 35, -20, s * 3, -10);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(s * 3, -5);
+        ctx.quadraticCurveTo(s * 55, -15, s * 55, 5);
+        ctx.quadraticCurveTo(s * 35, 5, s * 3, 10);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(s * 3, 15);
+        ctx.quadraticCurveTo(s * 40, 20, s * 40, 35);
+        ctx.quadraticCurveTo(s * 25, 25, s * 3, 25);
+        ctx.fill();
+    });
+
+    // Realistic run dripping artifacts underneath logo base
+    for(let d=0; d<3; d++) {
+        let dx = (Math.random() - 0.5) * 40;
+        let dl = Math.random() * 35 + 15;
+        ctx.fillRect(dx, 30, Math.random() * 2 + 1, dl);
+    }
     ctx.restore();
 }
 
 function renderSign() {
-    const w = canvas.width;
-    const h = canvas.height;
+    const w = canvas.width; const h = canvas.height;
     const decay = parseInt(decayLevel.value);
+    const rust = parseInt(rustSlider.value);
     
-    ctx.fillStyle = '#101412'; 
-    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = '#101412'; ctx.fillRect(0, 0, w, h);
 
-    const padding = 30;
-    const sw = w - padding * 2;
-    const sh = h - padding * 2;
-    
+    const padding = 30; const sw = w - padding * 2; const sh = h - padding * 2;
     const greenHue = 150 - (decay * 3);
     const greenSat = 35 - (decay * 2);
     const greenLight = 14 - (decay * 0.6);
     ctx.fillStyle = `hsl(${greenHue}, ${greenSat}%, ${greenLight}%)`;
     
-    ctx.beginPath();
-    ctx.roundRect(padding, padding, sw, sh, 18);
-    ctx.fill();
+    ctx.beginPath(); ctx.roundRect(padding, padding, sw, sh, 18); ctx.fill();
 
     ctx.globalCompositeOperation = 'source-atop';
-    
     for (let i = 0; i < decay * 4; i++) {
-        let rX = Math.random() * sw + padding;
-        let rY = Math.random() * sh + padding;
+        let rX = Math.random() * sw + padding; let rY = Math.random() * sh + padding;
         let rRad = Math.random() * (decay * 25) + 10;
         let grd = ctx.createRadialGradient(rX, rY, 2, rX, rY, rRad);
         grd.addColorStop(0, `rgba(${80 + decay*8}, ${60 + decay*2}, 30, ${0.15 * (decay/4)})`);
         grd.addColorStop(1, 'transparent');
-        ctx.fillStyle = grd;
-        ctx.beginPath();
-        ctx.arc(rX, rY, rRad, 0, Math.PI * 2);
-        ctx.fill();
-    }
-
-    for (let i = 0; i < decay * 2; i++) {
-        let mX = Math.random() * sw + padding;
-        let mY = (Math.random() < 0.5) ? padding + 10 : padding + sh - 20; 
-        let mRad = Math.random() * (decay * 35) + 15;
-        let grd = ctx.createRadialGradient(mX, mY, 5, mX, mY, mRad);
-        grd.addColorStop(0, `rgba(35, 55, 25, ${0.4 * (decay/5)})`);
-        grd.addColorStop(1, 'transparent');
-        ctx.fillStyle = grd;
-        ctx.beginPath();
-        ctx.arc(mX, mY, mRad, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.fillStyle = grd; ctx.beginPath(); ctx.arc(rX, rY, rRad, 0, Math.PI * 2); ctx.fill();
     }
     ctx.globalCompositeOperation = 'source-over';
 
     ctx.strokeStyle = `rgba(210, 220, 215, ${0.85 - (decay * 0.05)})`;
-    ctx.lineWidth = 7;
-    ctx.beginPath();
-    ctx.roundRect(padding + 12, padding + 12, sw - 24, sh - 24, 10);
-    ctx.stroke();
+    ctx.lineWidth = 7; ctx.beginPath(); ctx.roundRect(padding + 12, padding + 12, sw - 24, sh - 24, 10); ctx.stroke();
 
     if (shieldType.value !== 'NONE') {
         drawShield(shieldType.value, shieldNumber.value, w / 2 - 120, h / 2 - 110);
@@ -243,49 +314,47 @@ function renderSign() {
 
     ctx.fillStyle = `rgba(235, 242, 238, ${0.9 - (decay * 0.04)})`;
     ctx.textAlign = "left";
-    
     if (shieldType.value !== 'NONE') {
-        ctx.font = '900 36px "Overpass", sans-serif';
-        ctx.fillText("WEST", w / 2 - 45, h / 2 - 100);
+        ctx.font = '900 36px "Overpass", sans-serif'; ctx.fillText("WEST", w / 2 - 45, h / 2 - 100);
     }
 
     ctx.textAlign = "center";
-    
     ctx.font = '900 52px "Overpass", sans-serif';
     ctx.fillText(line1.value.toUpperCase(), w / 2, h / 2 + 10);
-
     ctx.font = '600 44px "Overpass", sans-serif';
     ctx.fillText(line2.value.toUpperCase(), w / 2, h / 2 + 80);
-
     ctx.font = '600 34px "Overpass", sans-serif';
     ctx.fillStyle = `rgba(225, 235, 228, ${0.75 - (decay * 0.05)})`; 
     ctx.fillText(line3.value.toUpperCase(), w / 2, h / 2 + 145);
+
+    // Render Firefly logo stencil layer
+    if (fireflyToggle.value !== 'NONE') {
+        drawFireflyGraffiti(w / 2 + 250, h / 2 - 95, fireflyToggle.value);
+    }
+
+    // Render FEDRA / Military Warning banner overlays
+    if (bannerSelect.value !== 'NONE') {
+        ctx.fillStyle = '#942b2b';
+        ctx.fillRect(padding + 20, h - 95, sw - 40, 45);
+        ctx.lineWidth = 2; ctx.strokeStyle = '#d4ded9'; ctx.strokeRect(padding + 22, h - 93, sw - 44, 41);
+        ctx.fillStyle = '#ffffff'; ctx.font = '900 20px "Overpass", sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(bannerSelect.value === 'FEDRA' ? "FEDRA ZONE - NO UNAUTHORIZED ENTRY" : "MILITARY CHECKPOINT AHEAD", w / 2, h - 65);
+    }
 
     const impacts = parseInt(bulletHoles.value);
     const holePositions = generateSeededNoise(w, h, impacts, 42); 
     
     holePositions.forEach(pt => {
-        ctx.fillStyle = '#1c211f';
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 7, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = '#4c5350';
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 3, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = '#050706';
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 1.5, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.fillStyle = '#1c211f'; ctx.beginPath(); ctx.arc(pt.x, pt.y, 7, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#4c5350'; ctx.beginPath(); ctx.arc(pt.x, pt.y, 3, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#050706'; ctx.beginPath(); ctx.arc(pt.x, pt.y, 1.5, 0, Math.PI * 2); ctx.fill();
         
-        if(decay > 3) {
-            let streakGrad = ctx.createLinearGradient(pt.x, pt.y, pt.x, pt.y + (decay * 6));
-            streakGrad.addColorStop(0, `rgba(90, 45, 15, ${0.4 * (decay/5)})`);
+        let activeRust = Math.max(decay, rust);
+        if(activeRust > 1) {
+            let streakGrad = ctx.createLinearGradient(pt.x, pt.y, pt.x, pt.y + (activeRust * 8));
+            streakGrad.addColorStop(0, `rgba(95, 42, 12, ${0.45 * (activeRust/5)})`);
             streakGrad.addColorStop(1, 'transparent');
-            ctx.fillStyle = streakGrad;
-            ctx.fillRect(pt.x - 2, pt.y + 2, 4, decay * 6);
+            ctx.fillStyle = streakGrad; ctx.fillRect(pt.x - 2, pt.y + 2, 4, activeRust * 8);
         }
     });
 }
@@ -298,6 +367,5 @@ document.fonts.ready.then(() => {
 document.getElementById('downloadBtn').addEventListener('click', () => {
     const link = document.createElement('a');
     link.download = `tlou-episode-sign-${line1.value.toLowerCase().replace(/\s+/g, '-')}.png`;
-    link.href = canvas.toDataURL();
-    link.click();
+    link.href = canvas.toDataURL(); link.click();
 });
