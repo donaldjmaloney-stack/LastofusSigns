@@ -79,7 +79,7 @@ const bulletHoles = document.getElementById('bulletHoles');
 
 const controlPane = document.querySelector('.controls-pane');
 
-// Check to prevent duplicate injection loops on reload
+// Core Dashboard Layout Injections
 if (!document.getElementById('fireflyToggle')) {
     const ffGroup = document.createElement('div');
     ffGroup.className = 'control-group';
@@ -90,6 +90,15 @@ if (!document.getElementById('fireflyToggle')) {
         <option value="BLACK">Black Splatter Paint</option>
     </select>`;
     controlPane.appendChild(ffGroup);
+
+    const dripGroup = document.createElement('div');
+    dripGroup.className = 'control-group';
+    dripGroup.innerHTML = `<label for="dripToggle">Graffiti Paint Drips</label>
+    <select id="dripToggle">
+        <option value="ON" selected>Drips Enabled</option>
+        <option value="OFF">Drips Disabled</option>
+    </select>`;
+    controlPane.appendChild(dripGroup);
 
     const rustGroup = document.createElement('div');
     rustGroup.className = 'control-group';
@@ -112,6 +121,7 @@ if (!document.getElementById('fireflyToggle')) {
 }
 
 const fireflyToggle = document.getElementById('fireflyToggle');
+const dripToggle = document.getElementById('dripToggle');
 const rustSlider = document.getElementById('rustSlider');
 const bannerSelect = document.getElementById('bannerSelect');
 
@@ -119,7 +129,7 @@ rustSlider.addEventListener('input', (e) => document.getElementById('rustVal').i
 document.getElementById('decayLevel').addEventListener('input', (e) => document.getElementById('decayVal').innerText = e.target.value);
 document.getElementById('bulletHoles').addEventListener('input', (e) => document.getElementById('bulletVal').innerText = e.target.value);
 
-[routeSelect, shieldType, shieldNumber, line1, line2, line3, decayLevel, bulletHoles, fireflyToggle, rustSlider, bannerSelect].forEach(element => {
+[routeSelect, shieldType, shieldNumber, line1, line2, line3, decayLevel, bulletHoles, fireflyToggle, dripToggle, rustSlider, bannerSelect].forEach(element => {
     element.addEventListener('input', renderSign);
 });
 
@@ -148,73 +158,32 @@ function generateSeededNoise(width, height, count, seed) {
     }
     return points;
 }
+
 function drawShield(type, number, x, y) {
     ctx.save();
     ctx.translate(x, y);
     let sz = 75; 
 
     if (type === 'TEXAS') {
-        ctx.fillStyle = '#ffffff';
-        ctx.strokeStyle = '#111111';
-        ctx.lineWidth = 4;
-        ctx.fillRect(-sz/2, -sz/2, sz, sz);
-        ctx.strokeRect(-sz/2, -sz/2, sz, sz);
-        
-        ctx.fillStyle = '#111111';
-        ctx.font = '900 12px "Overpass", sans-serif';
-        ctx.textAlign = 'center';
+        ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#111111'; ctx.lineWidth = 4;
+        ctx.fillRect(-sz/2, -sz/2, sz, sz); ctx.strokeRect(-sz/2, -sz/2, sz, sz);
+        ctx.fillStyle = '#111111'; ctx.font = '900 12px "Overpass", sans-serif'; ctx.textAlign = 'center';
         ctx.fillText("TEXAS", 0, -18);
-        
-        ctx.font = '900 32px "Overpass", sans-serif';
-        ctx.fillText(number, 0, 15);
+        ctx.font = '900 32px "Overpass", sans-serif'; ctx.fillText(number, 0, 15);
 
     } else if (type === 'INTERSTATE') {
-        ctx.beginPath();
-        ctx.moveTo(-sz/2, -sz/3);
-        ctx.quadraticCurveTo(-sz/2, -sz/2, 0, -sz/2);
-        ctx.quadraticCurveTo(sz/2, -sz/2, sz/2, -sz/3);
-        ctx.lineTo(sz/2, 0);
-        ctx.quadraticCurveTo(sz/2, sz/3, 0, sz/2);
-        ctx.quadraticCurveTo(-sz/2, sz/3, -sz/2, 0);
-        ctx.closePath();
-        
-        ctx.fillStyle = '#1a3a6c'; 
-        ctx.fill();
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 3;
-        ctx.stroke();
-
-        ctx.save();
-        ctx.clip();
-        ctx.fillStyle = '#9c2424'; 
-        ctx.fillRect(-sz, -sz/2, sz*2, sz/3 + 3);
-        ctx.restore();
-        ctx.stroke();
-
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '900 34px "Overpass", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(number, 0, 18);
+        ctx.beginPath(); ctx.moveTo(-sz/2, -sz/3); ctx.quadraticCurveTo(-sz/2, -sz/2, 0, -sz/2);
+        ctx.quadraticCurveTo(sz/2, -sz/2, sz/2, -sz/3); ctx.lineTo(sz/2, 0);
+        ctx.quadraticCurveTo(sz/2, sz/3, 0, sz/2); ctx.quadraticCurveTo(-sz/2, sz/3, -sz/2, 0); ctx.closePath();
+        ctx.fillStyle = '#1a3a6c'; ctx.fill(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3; ctx.stroke();
+        ctx.save(); ctx.clip(); ctx.fillStyle = '#9c2424'; ctx.fillRect(-sz, -sz/2, sz*2, sz/3 + 3); ctx.restore(); ctx.stroke();
+        ctx.fillStyle = '#ffffff'; ctx.font = '900 34px "Overpass", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(number, 0, 18);
 
     } else if (type === 'US') {
-        ctx.beginPath();
-        ctx.moveTo(-sz/2, -sz/2);
-        ctx.lineTo(sz/2, -sz/2);
-        ctx.lineTo(sz/2, -sz/6);
-        ctx.quadraticCurveTo(sz/2, sz/4, 0, sz/2);
-        ctx.quadraticCurveTo(-sz/2, sz/4, -sz/2, -sz/6);
-        ctx.closePath();
-
-        ctx.fillStyle = '#ffffff';
-        ctx.fill();
-        ctx.strokeStyle = '#111111';
-        ctx.lineWidth = 4;
-        ctx.stroke();
-
-        ctx.fillStyle = '#111111';
-        ctx.font = '900 34px "Overpass", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(number, 0, 12);
+        ctx.beginPath(); ctx.moveTo(-sz/2, -sz/2); ctx.lineTo(sz/2, -sz/2); ctx.lineTo(sz/2, -sz/6);
+        ctx.quadraticCurveTo(sz/2, sz/4, 0, sz/2); ctx.quadraticCurveTo(-sz/2, sz/4, -sz/2, -sz/6); ctx.closePath();
+        ctx.fillStyle = '#ffffff'; ctx.fill(); ctx.strokeStyle = '#111111'; ctx.lineWidth = 4; ctx.stroke();
+        ctx.fillStyle = '#111111'; ctx.font = '900 34px "Overpass", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(number, 0, 12);
     }
     ctx.restore();
 }
@@ -224,14 +193,11 @@ function drawFireflyGraffiti(x, y, color) {
     if (!pngSource) return;
 
     ctx.save();
-    
     let offCanvas = document.createElement('canvas');
-    offCanvas.width = 160;
-    offCanvas.height = 160;
+    offCanvas.width = 160; offCanvas.height = 160;
     let oCtx = offCanvas.getContext('2d');
 
     oCtx.drawImage(pngSource, 10, 10, 140, 140);
-
     oCtx.globalCompositeOperation = 'source-in';
     oCtx.fillStyle = color === 'WHITE' ? 'rgba(230, 238, 232, 0.78)' : 'rgba(14, 18, 15, 0.88)';
     oCtx.fillRect(0, 0, 160, 160);
@@ -241,7 +207,6 @@ function drawFireflyGraffiti(x, y, color) {
     for(let i = 0; i < 40; i++) {
         oCtx.fillRect(Math.random() * 160, Math.random() * 160, Math.random() * 2 + 1, Math.random() * 2 + 1);
     }
-
     ctx.drawImage(offCanvas, x - 80, y - 80);
 
     let localSeed = 54321;
@@ -253,104 +218,27 @@ function drawFireflyGraffiti(x, y, color) {
     for(let s = 0; s < 140; s++) {
         let angle = seededRandom() * Math.PI * 2;
         let radius = seededRandom() * 85;
-        let sx = x + Math.cos(angle) * radius;
-        let sy = y + Math.sin(angle) * radius;
+        let sx = x + Math.cos(angle) * radius; let sy = y + Math.sin(angle) * radius;
         ctx.fillStyle = color === 'WHITE' ? `rgba(230,238,232,${seededRandom() * 0.12})` : `rgba(14,18,15,${seededRandom() * 0.12})`;
-        ctx.beginPath(); 
-        ctx.arc(sx, sy, seededRandom() * 2.2 + 0.4, 0, Math.PI * 2); 
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(sx, sy, seededRandom() * 2.2 + 0.4, 0, Math.PI * 2); ctx.fill();
     }
 
-    ctx.fillStyle = color === 'WHITE' ? 'rgba(230,238,232,0.65)' : 'rgba(14,18,15,0.75)';
-    const dripOffsets = [-25, -5, 0, 5, 25];
-    
-    dripOffsets.forEach((offset, idx) => {
-        let dx = x + offset + (seededRandom() - 0.5) * 4;
-        let startY = y + 38;
-        let dl = seededRandom() * 45 + 30;
-        let dw = seededRandom() * 1.5 + 1.4;
+    // TOGGLE & HIGH-ALIGNMENT PASS: Running drips directly from the lower wing segments if enabled
+    if (dripToggle.value === 'ON') {
+        ctx.fillStyle = color === 'WHITE' ? 'rgba(230,238,232,0.65)' : 'rgba(14,18,15,0.75)';
+        // Placed under left wing joint, body stem, and right wing joint
+        const highWingOffsets = [-32, -8, 0, 8, 32]; 
         
-        ctx.fillRect(dx - dw/2, startY, dw, dl);
-        ctx.beginPath();
-        ctx.arc(dx, startY + dl, dw * 0.95, 0, Math.PI * 2);
-        ctx.fill();
-    });
-    
-    ctx.restore();
-}
-
-function drawCordycepsGrowth(ctx, x, y, size) {
-    let seed = x + y;
-    function sRandom() {
-        seed = (seed * 9301 + 49297) % 233280;
-        return seed / 233280;
-    }
-    
-    ctx.save();
-    ctx.strokeStyle = 'rgba(200, 150, 80, 0.4)';
-    ctx.lineWidth = 1.5;
-    for(let i=0; i<6; i++) {
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.quadraticCurveTo(x + (sRandom()-0.5)*size*2, y + (sRandom()-0.5)*size*2, x + (sRandom()-0.5)*size*3, y + (sRandom()-0.5)*size*3);
-        ctx.stroke();
-    }
-    
-    for(let i=0; i<8; i++) {
-        let nx = x + (sRandom() - 0.5) * size * 1.5;
-        let ny = y + (sRandom() - 0.5) * size * 1.5;
-        let rad = sRandom() * (size * 0.6) + 3;
-        
-        let grd = ctx.createRadialGradient(nx - rad*0.3, ny - rad*0.3, 1, nx, ny, rad);
-        grd.addColorStop(0, '#e59342');
-        grd.addColorStop(0.6, '#a65b24');
-        grd.addColorStop(1, '#42240c');
-        
-        ctx.fillStyle = grd;
-        ctx.beginPath();
-        ctx.arc(nx, ny, rad, 0, Math.PI * 2);
-        ctx.fill();
-    }
-    ctx.restore();
-}
-function drawIvyGrowth(ctx, startX, startY, length, size) {
-    let seed = startX * startY;
-    function sRandom() {
-        seed = (seed * 9301 + 49297) % 233280;
-        return seed / 233280;
-    }
-
-    ctx.save();
-    ctx.strokeStyle = 'rgba(30, 48, 25, 0.8)';
-    ctx.lineWidth = 3;
-    
-    ctx.beginPath();
-    ctx.moveTo(startX, startY);
-    let cx = startX;
-    let cy = startY;
-    for(let i=0; i<length; i++) {
-        cx += (sRandom() - 0.3) * 15;
-        cy += (sRandom() - 0.1) * 20;
-        ctx.lineTo(cx, cy);
-        
-        if(i % 2 === 0) {
-            ctx.save();
-            ctx.fillStyle = sRandom() > 0.4 ? 'rgba(42, 68, 35, 0.9)' : 'rgba(56, 84, 48, 0.95)';
-            ctx.translate(cx, cy);
-            ctx.rotate(sRandom() * Math.PI * 2);
+        highWingOffsets.forEach((offset) => {
+            let dx = x + offset + (seededRandom() - 0.5) * 3;
+            let startY = y - 10; // Shifted UPWARD to bleed straight out of the wing nodes
+            let dl = seededRandom() * 55 + 35;
+            let dw = seededRandom() * 1.5 + 1.3;
             
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.quadraticCurveTo(-size, -size*0.5, -size*1.5, 0);
-            ctx.quadraticCurveTo(-size, size*0.5, 0, 0);
-            ctx.quadraticCurveTo(size, -size*0.5, size*1.5, 0);
-            ctx.quadraticCurveTo(size, size*0.5, 0, 0);
-            ctx.closePath();
-            ctx.fill();
-            ctx.restore();
-        }
+            ctx.fillRect(dx - dw/2, startY, dw, dl);
+            ctx.beginPath(); ctx.arc(dx, startY + dl, dw * 0.95, 0, Math.PI * 2); ctx.fill();
+        });
     }
-    ctx.stroke();
     ctx.restore();
 }
 
@@ -407,8 +295,7 @@ function renderSign() {
     }
 
     if (bannerSelect.value !== 'NONE') {
-        ctx.fillStyle = '#942b2b';
-        ctx.fillRect(padding + 20, h - 95, sw - 40, 45);
+        ctx.fillStyle = '#942b2b'; ctx.fillRect(padding + 20, h - 95, sw - 40, 45);
         ctx.lineWidth = 2; ctx.strokeStyle = '#d4ded9'; ctx.strokeRect(padding + 22, h - 93, sw - 44, 41);
         ctx.fillStyle = '#ffffff'; ctx.font = '900 20px "Overpass", sans-serif'; ctx.textAlign = 'center';
         ctx.fillText(bannerSelect.value === 'FEDRA' ? "FEDRA ZONE - NO UNAUTHORIZED ENTRY" : "MILITARY CHECKPOINT AHEAD", w / 2, h - 65);
@@ -430,27 +317,26 @@ function renderSign() {
             ctx.fillStyle = streakGrad; ctx.fillRect(pt.x - 2, pt.y + 2, 4, activeRust * 8);
         }
 
+        // IMAGE-BASED CORDYCEPS PASS: Draws authentic fungal sprites centered onto damage scales
         const cordycepsVal = parseInt(document.getElementById('cordycepsSlider')?.value || 0);
-        if (cordycepsVal > 0) {
-            drawCordycepsGrowth(ctx, pt.x, pt.y, cordycepsVal * 3.5);
+        const fungusImg = document.getElementById('fungusLocalPNG');
+        if (cordycepsVal > 0 && fungusImg) {
+            let fSize = cordycepsVal * 9;
+            ctx.drawImage(fungusImg, pt.x - fSize/2, pt.y - fSize/2, fSize, fSize);
         }
     });
 
+    // IMAGE-BASED IVY OVERGROWTH PASS: Scales transparent vine templates creeping from corners
     const ivyVal = parseInt(document.getElementById('ivySlider')?.value || 0);
-    if(ivyVal > 0) {
-        let ivySeedSystem = [
-            { x: padding + 60, y: padding, len: ivyVal * 1.8, sz: 8 },
-            { x: padding + sw - 120, y: padding, len: ivyVal * 2.2, sz: 10 },
-            { x: padding, y: padding + 80, len: ivyVal * 1.5, sz: 7 }
-        ];
-        ivySeedSystem.forEach(vine => {
-            drawIvyGrowth(ctx, vine.x, vine.y, vine.len, vine.sz);
-        });
+    const ivyImg = document.getElementById('ivyLocalPNG');
+    if(ivyVal > 0 && ivyImg) {
+        let iSize = ivyVal * 28;
+        // Top-left creeping vine sheet
+        ctx.drawImage(ivyImg, padding - 10, padding - 10, iSize * 1.4, iSize);
+        // Top-right hanging branch layer
+        ctx.drawImage(ivyImg, padding + sw - (iSize * 1.2), padding - 15, iSize * 1.2, iSize * 1.1);
     }
 }
-
-const initLogo = document.getElementById('fireflyLogoSource');
-if(initLogo) { initLogo.onload = () => renderSign(); }
 
 if (!document.getElementById('ivySlider')) {
     const ivyGroup = document.createElement('div');
@@ -462,8 +348,7 @@ if (!document.getElementById('ivySlider')) {
     </div>`;
     controlPane.appendChild(ivyGroup);
     document.getElementById('ivySlider').addEventListener('input', (e) => {
-        document.getElementById('ivyVal').innerText = e.target.value;
-        renderSign();
+        document.getElementById('ivyVal').innerText = e.target.value; renderSign();
     });
 
     const fungalGroup = document.createElement('div');
